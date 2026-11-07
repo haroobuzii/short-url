@@ -1,5 +1,7 @@
 use dioxus::prelude::*;
 
+#[cfg(feature = "server")]
+mod db;
 mod validate;
 
 const FAVICON: Asset = asset!("/assets/favicon.ico");

@@ -7,9 +7,13 @@ edition = "2021"
 
 [dependencies]
 dioxus = { version = "0.7.1", features = ["fullstack"] }
+sqlx = { version = "0.8", default-features = false, features = ["runtime-tokio", "tls-rustls", "postgres", "macros", "migrate"], optional = true }
 url = "2"
 
 [features]
 default = ["web"]
 web = ["dioxus/web"]
-server = ["dioxus/server"]
+server = ["dioxus/server", "dep:sqlx"]
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }

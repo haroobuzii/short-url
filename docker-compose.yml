@@ -1,0 +1,16 @@
+# 로컬 개발용 PostgreSQL. 배포 환경은 Railway의 PostgreSQL을 쓴다.
+# 여기 적힌 비밀번호는 내 컴퓨터에서만 쓰는 개발용 값이다.
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: shorturl
+      POSTGRES_PASSWORD: shorturl
+      POSTGRES_DB: shorturl
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+volumes:
+  db-data:
