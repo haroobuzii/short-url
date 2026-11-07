@@ -15,3 +15,62 @@ h1 {
     font-size: 28px;
     margin-bottom: 8px;
 }
+
+.lead {
+    color: #555;
+    margin-top: 0;
+}
+
+.shorten {
+    display: flex;
+    gap: 8px;
+    margin-top: 24px;
+}
+
+.shorten input {
+    flex: 1;
+    min-width: 0;
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
+
+button {
+    padding: 12px 18px;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    background: #1f6feb;
+    color: white;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+button:disabled {
+    background: #8aa9d6;
+    cursor: wait;
+}
+
+.error {
+    color: #c62828;
+    margin-top: 12px;
+}
+
+.result {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 12px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.result a {
+    font-size: 18px;
+    color: #1f6feb;
+    word-break: break-all;
+}
