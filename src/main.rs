@@ -3,6 +3,8 @@ use dioxus::prelude::*;
 #[cfg(feature = "server")]
 mod db;
 #[cfg(feature = "server")]
+mod redirect;
+#[cfg(feature = "server")]
 mod server;
 #[cfg(feature = "server")]
 mod validate;

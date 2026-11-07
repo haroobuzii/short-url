@@ -28,7 +28,7 @@ pub async fn router() -> anyhow::Result<Router> {
         let _ = POOL.set(pool);
     }
 
-    Ok(dioxus::server::router(crate::App))
+    Ok(crate::redirect::add_routes(dioxus::server::router(crate::App)))
 }
 
 pub fn pool() -> &'static PgPool {
