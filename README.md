@@ -65,4 +65,12 @@ scripts/check-persistence.sh http://localhost:8080 verify
 | 수정·삭제 시도 | `/api/links`의 PUT·PATCH·DELETE, `/번호`의 POST·PUT·PATCH·DELETE 모두 405. 번호를 지정한 생성 요청은 무시되고 새 번호를 받음. 시도 뒤에도 원래 주소로 이동 |
 | 앱과 DB 재시작 | 재시작 전에 만든 `/58`이 재시작 뒤에도 같은 원본으로 302 이동. 다음 번호는 59로 이어짐 |
 
-> 배포 결과, Railway·Cloudflare 배포 방법, 번호 발급 방식 설명은 배포하면서 채운다.
+### Railway 백엔드 결과 (2026-11-08, https://short-url-production-da76.up.railway.app)
+
+| 시나리오 | 결과 |
+|---|---|
+| 50개 동시 생성 | 50개 모두 성공, 번호 50개 모두 다름(1~50), 50개 모두 자기 원본으로 302 이동 |
+| 거절 규칙 (`check-rules.sh`) | 25개 모두 통과 (잘못된 URL 10종 400, 없는 번호 6종 404, 수정·삭제 시도 9종 거절) |
+| 재배포 | 재배포 전에 만든 `/54`가 재배포 뒤에도 같은 원본으로 302 이동 |
+
+> Cloudflare 결과, Railway·Cloudflare 배포 방법, 번호 발급 방식 설명은 다음 단계에서 채운다.
