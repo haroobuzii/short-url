@@ -11,3 +11,7 @@
 
 # 재시작 확인 스크립트가 남기는 기록
 .persistence-check
+
+# Cloudflare 빌드 결과물과 wrangler 작업 폴더
+cloudflare/public
+cloudflare/.wrangler
