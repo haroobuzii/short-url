@@ -43,4 +43,26 @@ set -a; . ./.env; set +a
 cargo test --no-default-features --features server
 ```
 
-> 나머지 내용(DB 준비, 환경 변수, 배포, 번호 발급 방식, 검증 결과)은 구현하면서 채운다.
+## 검증 시나리오
+
+`scripts/`의 스크립트는 로컬 주소와 배포 주소 모두에 쓸 수 있다.
+
+```bash
+scripts/check-concurrency.sh http://localhost:8080 50   # 동시 생성
+scripts/check-rules.sh http://localhost:8080            # 잘못된 URL, 없는 번호, 수정 시도 거절
+scripts/check-persistence.sh http://localhost:8080 create
+# 서버와 DB를 재시작한 뒤
+scripts/check-persistence.sh http://localhost:8080 verify
+```
+
+### 로컬 결과 (2026-11-08)
+
+| 시나리오 | 결과 |
+|---|---|
+| 50개 동시 생성 | 50개 모두 성공, 번호 50개 모두 다름(6~55), 50개 모두 자기 원본으로 302 이동 |
+| 잘못된 URL 10종 | 모두 400 (`javascript:`, `ftp://`, 스킴 없음, `https:naver.com`, 빈 값, 공백, 호스트 없음, 2048자 초과, 자기 주소) |
+| 없는 번호·번호가 아닌 주소 6종 | 모두 404 (`/999999999`, `/0`, `/01`, `/abc`, `/1/`, `/a/b`) |
+| 수정·삭제 시도 | `/api/links`의 PUT·PATCH·DELETE, `/번호`의 POST·PUT·PATCH·DELETE 모두 405. 번호를 지정한 생성 요청은 무시되고 새 번호를 받음. 시도 뒤에도 원래 주소로 이동 |
+| 앱과 DB 재시작 | 재시작 전에 만든 `/58`이 재시작 뒤에도 같은 원본으로 302 이동. 다음 번호는 59로 이어짐 |
+
+> 배포 결과, Railway·Cloudflare 배포 방법, 번호 발급 방식 설명은 배포하면서 채운다.

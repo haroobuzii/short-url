@@ -54,6 +54,34 @@ mod tests {
     }
 
     #[sqlx::test]
+    async fn 동시에_저장해도_번호가_겹치지_않고_각자_자기_URL을_가진다(pool: PgPool) {
+        let tasks: Vec<_> = (1..=50)
+            .map(|i| {
+                let pool = pool.clone();
+                tokio::spawn(async move {
+                    let url = format!("https://example.org/{i}");
+                    let id = create_link(&pool, &url).await.unwrap();
+                    (id, url)
+                })
+            })
+            .collect();
+
+        let mut results = Vec::new();
+        for task in tasks {
+            results.push(task.await.unwrap());
+        }
+
+        let mut ids: Vec<i64> = results.iter().map(|(id, _)| *id).collect();
+        ids.sort();
+        ids.dedup();
+        assert_eq!(ids.len(), 50, "번호가 겹쳤다");
+
+        for (id, url) in results {
+            assert_eq!(find_link(&pool, id).await.unwrap(), Some(url), "{id}번이 덮어써졌다");
+        }
+    }
+
+    #[sqlx::test]
     async fn 저장한_원본_URL을_그대로_돌려준다(pool: PgPool) {
         let url = "https://ko.wikipedia.org/wiki/대한민국?q=1#역사";
         let id = create_link(&pool, url).await.unwrap();
