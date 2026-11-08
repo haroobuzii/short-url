@@ -27,7 +27,7 @@ fn main() {
 /// 검사는 반드시 여기(서버)에서 한다. 거절하면 400과 한국어 이유를 돌려준다.
 #[post("/api/links")]
 async fn shorten(url: String) -> Result<i64, ServerFnError> {
-    let original_url = match validate::validate_original_url(&url, server::our_host()) {
+    let original_url = match validate::validate_original_url(&url, server::our_hosts()) {
         Ok(original_url) => original_url,
         Err(reason) => return Ok(HttpError::bad_request(reason.message())?),
     };

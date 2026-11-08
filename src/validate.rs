@@ -31,9 +31,9 @@ pub const MAX_LEN: usize = 2048;
 
 /// 입력을 검사하고, 통과하면 저장할 원본 URL(앞뒤 공백만 뺀 입력 그대로)을 돌려준다.
 ///
-/// `our_host`는 이 서비스의 공개 호스트 이름(예: `short.example`)이다.
-/// 주어지면 그 호스트를 가리키는 주소는 거절한다.
-pub fn validate_original_url(input: &str, our_host: Option<&str>) -> Result<String, InvalidUrl> {
+/// `our_hosts`는 이 서비스에 들어오는 공개 호스트 이름들(예: Cloudflare와 Railway 주소)이다.
+/// 그중 하나를 가리키는 주소는 거절한다. 비어 있으면 이 검사를 건너뛴다.
+pub fn validate_original_url(input: &str, our_hosts: &[&str]) -> Result<String, InvalidUrl> {
     let url = input.trim();
 
     if url.is_empty() {
@@ -68,10 +68,8 @@ pub fn validate_original_url(input: &str, our_host: Option<&str>) -> Result<Stri
         _ => return Err(InvalidUrl::Malformed),
     };
 
-    if let Some(ours) = our_host {
-        if host.eq_ignore_ascii_case(ours) {
-            return Err(InvalidUrl::PointsToUs);
-        }
+    if our_hosts.iter().any(|ours| host.eq_ignore_ascii_case(ours)) {
+        return Err(InvalidUrl::PointsToUs);
     }
 
     Ok(url.to_string())
@@ -81,12 +79,14 @@ pub fn validate_original_url(input: &str, our_host: Option<&str>) -> Result<Stri
 mod tests {
     use super::*;
 
+    const OUR_HOSTS: &[&str] = &["short.example", "short-url.up.railway.app"];
+
     fn ok(input: &str) -> String {
-        validate_original_url(input, Some("short.example")).expect("통과해야 하는 주소")
+        validate_original_url(input, OUR_HOSTS).expect("통과해야 하는 주소")
     }
 
     fn err(input: &str) -> InvalidUrl {
-        validate_original_url(input, Some("short.example")).expect_err("거절해야 하는 주소")
+        validate_original_url(input, OUR_HOSTS).expect_err("거절해야 하는 주소")
     }
 
     #[test]
@@ -171,6 +171,11 @@ mod tests {
     }
 
     #[test]
+    fn 우리_주소가_여러_개면_모두_거절한다() {
+        assert_eq!(err("https://short-url.up.railway.app/7"), InvalidUrl::PointsToUs);
+    }
+
+    #[test]
     fn 비슷하지만_다른_호스트는_통과한다() {
         assert_eq!(ok("https://notshort.example/7"), "https://notshort.example/7");
         assert_eq!(ok("https://sub.short.example/7"), "https://sub.short.example/7");
@@ -179,6 +184,6 @@ mod tests {
     #[test]
     fn 우리_주소를_모르면_그_규칙은_건너뛴다() {
         let url = "https://short.example/7";
-        assert_eq!(validate_original_url(url, None), Ok(url.to_string()));
+        assert_eq!(validate_original_url(url, &[]), Ok(url.to_string()));
     }
 }
